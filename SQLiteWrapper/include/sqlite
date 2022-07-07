@@ -1,0 +1,27 @@
+#ifndef __sqlite__$__
+#define __sqlite__$__ 465
+#include<sqlite3.h>
+#include<iostream>
+#include<sqliteException>
+namespace sqlite
+{
+class SqliteDB
+{
+private:
+sqlite3 *db;
+string FILE_NAME;
+public:
+SqliteDB() throw (SQLiteException);
+SqliteDB(const SqliteDB &other) throw (SQLiteException);
+SqliteDB(const char *) throw (SQLiteException);
+SqliteDB(string &) throw (SQLiteException);
+virtual ~SqliteDB() throw (SQLiteException);
+void executeInsert(const char *) throw (SQLiteException);
+void executeInsert(const string &) throw (SQLiteException);
+void close() throw (SQLiteException);
+void open(const char *) throw (SQLiteException);
+queue<forward_list<string *> *> * selectRows(const char *) throw (SQLiteException);
+queue<forward_list<string *> *> * selectRows(const string &) throw (SQLiteException);
+};
+}
+#endif
