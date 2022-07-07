@@ -2,9 +2,24 @@
 #define __sqlite__$__ 465
 #include<sqlite3.h>
 #include<iostream>
+#include<forward_list>
+#include<queue>
 #include<sqliteException>
 namespace sqlite
 {
+class Rows
+{
+private:
+queue<forward_list<string *> *> *dataRows;
+public:
+Rows() throw (SQLiteException);
+Rows(queue<forward_list<string *> *> *) throw (SQLiteException);
+Rows(const Rows &other) throw (SQLiteException);
+virtual ~Rows() throw (SQLiteException);
+Rows & operator=(queue<forward_list<string *> *> *) throw (SQLiteException);
+int hasMoreRows() throw (SQLiteException);
+forward_list<string *> * getRow() throw (SQLiteException);
+};
 class SqliteDB
 {
 private:
