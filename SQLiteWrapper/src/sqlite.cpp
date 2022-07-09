@@ -203,10 +203,50 @@ i=list->insert_after(i,str);
 vQueue->push(list);
 return 0;
 }
+void SqliteDB::clearDataRows()
+{
+if(this->dataRows!=NULL)
+{
+/*
+I Assumed main() function programmer cannot use Rows class to grab the
+Queue of Rows data structure So I release Memory.
+*/
+forward_list<string *> *row;
+string *str1;
+string *str2;
+while(!this->dataRows->empty())
+{
+row=this->dataRows->front();
+this->dataRows->pop();
+while(!row->empty())
+{
+str1=row->front();
+row->pop_front();
+str2=row->front();
+row->pop_front();
+delete str1;
+DMACount--;
+cout<<"Current DMA On heap is: "<<DMACount<<endl;
+delete str2;
+DMACount--;
+cout<<"Current DMA On heap is: "<<DMACount<<endl;
+}
+delete row;
+DMACount--;
+cout<<"Current DMA On heap is: "<<DMACount<<endl;
+}
+DMACount--;
+cout<<"Releasing Resource of our Queue Data Struture"<<endl;
+cout<<"Current DMA On heap is: "<<DMACount<<endl;
+delete this->dataRows;
+this->dataRows=NULL;
+}
+}
 SqliteDB::SqliteDB() throw (SQLiteException)
 {
 this->db=NULL;
 this->FILE_NAME="";
+this->dataRows=NULL;
 }
 SqliteDB::SqliteDB(const SqliteDB &other) throw (SQLiteException)
 {
@@ -216,6 +256,7 @@ if(other.db==NULL)
 {
 this->db=NULL;
 this->FILE_NAME="";
+this->dataRows=NULL;
 return;
 }
 resultCode=sqlite3_open(other.FILE_NAME.c_str(),&(this->db));
@@ -225,9 +266,12 @@ error=sqlite3_errmsg(this->db);
 sqlite3_close(this->db);
 this->db=NULL;
 this->FILE_NAME="";
+this->dataRows=NULL;
 throw SQLiteException(string("unable to connect,reason: ")+error);
 }
 this->FILE_NAME=other.FILE_NAME;
+this->dataRows=NULL;
+// I not giving feature of copy dataRows I specify in github docs.
 }
 SqliteDB::SqliteDB(const char *fileName) throw (SQLiteException)
 {
@@ -240,9 +284,11 @@ error=sqlite3_errmsg(this->db);
 sqlite3_close(this->db);
 this->db=NULL;
 this->FILE_NAME="";
+this->dataRows=NULL;
 throw SQLiteException("unable to connect,reason: "+error);
 }
 this->FILE_NAME=fileName;
+this->dataRows=NULL;
 }
 SqliteDB::SqliteDB(string &fileName) throw (SQLiteException)
 {
@@ -255,9 +301,11 @@ error=sqlite3_errmsg(this->db);
 sqlite3_close(this->db);
 this->db=NULL;
 this->FILE_NAME="";
+this->dataRows=NULL;
 throw SQLiteException("unable to connect,reason: "+error);
 }
 this->FILE_NAME=fileName;
+this->dataRows=NULL;
 }
 SqliteDB::~SqliteDB() throw(SQLiteException)
 {
@@ -266,6 +314,8 @@ if(this->db!=NULL)
 sqlite3_close(this->db);
 this->db=NULL;
 this->FILE_NAME="";
+if(this->dataRows!=NULL) this->clearDataRows();
+this->dataRows=NULL;
 }
 }
 void SqliteDB::executeInsert(const char *sql) throw(SQLiteException)
@@ -309,6 +359,8 @@ if(this->db!=NULL)
 sqlite3_close(this->db);
 this->db=NULL;
 this->FILE_NAME="";
+if(this->dataRows!=NULL) this->clearDataRows();
+this->dataRows=NULL;
 }
 }
 void SqliteDB::open(const char *fileName) throw (SQLiteException)
@@ -322,8 +374,11 @@ if(resultCode!=SQLITE_OK)
 error=sqlite3_errmsg(this->db);
 this->db=NULL;
 this->FILE_NAME="";
+this->dataRows=NULL;
 throw SQLiteException(string("unable to connect with database, reason: ")+error);
 }
+this->FILE_NAME=fileName;
+this->dataRows=NULL;
 }
 queue<forward_list<string *> *> * SqliteDB::selectRows(const char *sql) throw (SQLiteException)
 {
@@ -346,6 +401,7 @@ error=errorMessage;
 sqlite3_free(errorMessage);
 throw SQLiteException("unable to fetch data");
 }
+this->dataRows=fetchedData;
 return fetchedData;
 }
 queue<forward_list<string *> *> * SqliteDB::selectRows(const string &sql) throw (SQLiteException)
@@ -372,5 +428,6 @@ error=errorMessage;
 sqlite3_free(errorMessage);
 throw SQLiteException("unable to fetch data");
 }
+this->dataRows=fetchedData;
 return fetchedData;
 }

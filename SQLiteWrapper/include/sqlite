@@ -42,6 +42,8 @@ class SqliteDB
 private:
 sqlite3 *db;
 string FILE_NAME;
+queue<forward_list<string *> *> *dataRows;
+void clearDataRows();
 public:
 SqliteDB() throw (SQLiteException);
 SqliteDB(const SqliteDB &other) throw (SQLiteException);
