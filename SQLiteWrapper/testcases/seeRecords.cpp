@@ -8,7 +8,7 @@ SqliteDB sqliteDB;
 try
 {
 sqliteDB.open("some.db");
-string sql="select * from students order by roll_number;";
+string sql="select * from students order by roll_number desc;";
 Rows rows=sqliteDB.selectRows(sql);
 Row row;
 int rollNumber;

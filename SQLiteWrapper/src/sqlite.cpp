@@ -5,6 +5,51 @@
 using namespace std;
 using namespace sqlite;
 using namespace stringutils;
+bool StringComparator::operator()(string *left,string *right)
+{
+return compareStringIgnoreCase((*left).c_str(),(*right).c_str())<0;
+}
+Row::Row() throw (SQLiteException)
+{
+// do nothing
+}
+Row & Row::operator=(forward_list<string *> *row) throw (SQLiteException)
+{
+string *str1;
+string *str2;
+// just temporary;
+this->row.clear();
+while(!row->empty())
+{
+str1=row->front();
+row->pop_front();
+str2=row->front();
+row->pop_front();
+this->row.insert(pair<string *,string *>(str1,str2));
+}
+return *this;
+}
+int Row::getInt(const char *column) throw (SQLiteException)
+{
+string col(column);
+string *data;
+int n;
+map<string *,string *,StringComparator>::iterator i;
+i=this->row.find(&col);
+if(i==this->row.end()) return -1;
+data=i->second;
+n=atoi(data->c_str());
+return n;
+}
+string Row::getString(const char *column) throw (SQLiteException)
+{
+string col(column);
+map<string *,string *,StringComparator>::iterator i;
+i=this->row.find(&col);
+if(i==this->row.end()) return string("");
+string data=*(i->second);
+return data;
+}
 Rows::Rows() throw (SQLiteException)
 {
 this->dataRows=NULL;
@@ -55,6 +100,13 @@ forward_list<string *>::iterator i;
 i=list->before_begin();
 for(e=0;e<columnSize;e++)
 {
+str=new string(columnPtr[e]);
+if(str==NULL)
+{
+// first clear  queue , inside forward list data and forwardlist..
+throw SQLiteException("fetching data is faild because not enough memory");
+}
+i=list->insert_after(i,str);
 str=new string(dataPtr[e]);
 if(str==NULL)
 {
@@ -203,6 +255,8 @@ if(fetchedData==NULL) throw SQLiteException("not enough amount of memory for int
 resultCode=sqlite3_exec(this->db,vsql.c_str(),fetchingData,fetchedData,&errorMessage);
 if(resultCode!=SQLITE_OK)
 {
+delete fetchedData;
+fetchedData=NULL;
 error=errorMessage;
 sqlite3_free(errorMessage);
 throw SQLiteException("unable to fetch data");
@@ -224,6 +278,8 @@ if(fetchedData==NULL) throw SQLiteException("not enough amount of memory for int
 resultCode=sqlite3_exec(this->db,vsql.c_str(),fetchingData,fetchedData,&errorMessage);
 if(resultCode!=SQLITE_OK)
 {
+delete fetchedData;
+fetchedData=NULL;
 error=errorMessage;
 sqlite3_free(errorMessage);
 throw SQLiteException("unable to fetch data");

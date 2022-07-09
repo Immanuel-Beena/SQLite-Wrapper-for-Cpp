@@ -4,9 +4,25 @@
 #include<iostream>
 #include<forward_list>
 #include<queue>
+#include<map>
 #include<sqliteException>
 namespace sqlite
 {
+class StringComparator
+{
+public:
+bool operator()(string *,string *);
+};
+class Row
+{
+private:
+map<string *,string *,StringComparator> row;
+public:
+Row() throw (SQLiteException);
+Row & operator=(forward_list<string *> *) throw (SQLiteException);
+int getInt(const char *) throw (SQLiteException);
+string getString(const char *) throw (SQLiteException);
+};
 class Rows
 {
 private:
