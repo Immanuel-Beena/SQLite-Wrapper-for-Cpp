@@ -52,6 +52,8 @@ SqliteDB(string &) throw (SQLiteException);
 virtual ~SqliteDB() throw (SQLiteException);
 void executeInsert(const char *) throw (SQLiteException);
 void executeInsert(const string &) throw (SQLiteException);
+void executeInsert(const char *,int *) throw (SQLiteException);
+void executeInsert(const string &,int *) throw (SQLiteException);
 void close() throw (SQLiteException);
 void open(const char *) throw (SQLiteException);
 queue<forward_list<string *> *> * selectRows(const char *) throw (SQLiteException);

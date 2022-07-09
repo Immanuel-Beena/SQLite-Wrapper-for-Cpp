@@ -352,6 +352,42 @@ sqlite3_free(errorMessage);
 throw SQLiteException(string("unable to insert, reason: ")+error);
 }
 }
+void SqliteDB::executeInsert(const char *sql,int *rowId) throw (SQLiteException)
+{
+string error;
+char *errorMessage;
+int resultCode,sqlLength;
+string vsql=trimmed(string(sql));
+sqlLength=vsql.length();
+if(sqlLength==0 || sqlLength <= 11) throw SQLiteException("Invalid SQL Statement");
+if(this->db==NULL) throw SQLiteException("Unable to insert because no connection to database");
+resultCode=sqlite3_exec(this->db,vsql.c_str(),0,0,&errorMessage);
+if(resultCode!=SQLITE_OK)
+{
+error=errorMessage;
+sqlite3_free(errorMessage);
+throw SQLiteException(string("unable to insert, reason: ")+error);
+}
+if(rowId) *rowId=sqlite3_last_insert_rowid(this->db);
+}
+void SqliteDB::executeInsert(const string &sql,int *rowId) throw (SQLiteException)
+{
+string error;
+char *errorMessage;
+int resultCode,sqlLength;
+string vsql=trimmed(sql);
+sqlLength=vsql.length();
+if(sqlLength==0 || sqlLength <= 11) throw SQLiteException("Invalid SQL Statement");
+if(this->db==NULL) throw SQLiteException("Unable to insert because no connection to database");
+resultCode=sqlite3_exec(this->db,vsql.c_str(),0,0,&errorMessage);
+if(resultCode!=SQLITE_OK)
+{
+error=errorMessage;
+sqlite3_free(errorMessage);
+throw SQLiteException(string("unable to insert, reason: ")+error);
+}
+if(rowId) *rowId=sqlite3_last_insert_rowid(this->db);
+}
 void SqliteDB::close() throw (SQLiteException)
 {
 if(this->db!=NULL)
