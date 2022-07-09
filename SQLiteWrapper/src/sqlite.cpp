@@ -134,7 +134,11 @@ row->pop_front();
 str2=row->front();
 row->pop_front();
 delete str1;
+DMACount--;
+cout<<"Current DMA On heap is: "<<DMACount<<endl;
 delete str2;
+DMACount--;
+cout<<"Current DMA On heap is: "<<DMACount<<endl;
 }
 delete row;
 DMACount--;
