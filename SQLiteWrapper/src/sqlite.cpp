@@ -16,26 +16,6 @@ Row::Row() throw (SQLiteException)
 }
 Row::~Row() throw (SQLiteException)
 {
-if(!this->row.empty())
-{
-string *str1;
-string *str2;
-map<string *,string *,StringComparator>::iterator i;
-for(i=this->row.begin();i!=this->row.end();++i)
-{
-str1=i->first;
-str2=i->second;
-// I free memory of inside the forward_list string *
-cout<<"releasing Memory of str 1 and str 2"<<endl;
-DMACount--;
-cout<<"Current DMA On heap is: "<<DMACount<<endl;
-DMACount--;
-cout<<"Current DMA On heap is: "<<DMACount<<endl;
-delete str1;
-delete str2;
-}
-this->row.clear(); // all nodes of tree is released
-}
 }
 Row & Row::operator=(forward_list<string *> *row) throw (SQLiteException)
 {
@@ -114,41 +94,7 @@ return *this;
 }
 Rows::~Rows() throw (SQLiteException)
 {
-if(this->dataRows!=NULL)
-{
-/*
-Assumed main() function programmer cannot calls getRow
-means our queue have data so we need to first relase resourse
-*/
-forward_list<string *> *row;
-string *str1;
-string *str2;
-while(!this->dataRows->empty())
-{
-row=this->dataRows->front();
-this->dataRows->pop();
-while(!row->empty())
-{
-str1=row->front();
-row->pop_front();
-str2=row->front();
-row->pop_front();
-delete str1;
-DMACount--;
-cout<<"Current DMA On heap is: "<<DMACount<<endl;
-delete str2;
-DMACount--;
-cout<<"Current DMA On heap is: "<<DMACount<<endl;
-}
-delete row;
-DMACount--;
-cout<<"Current DMA On heap is: "<<DMACount<<endl;
-}
-DMACount--;
-cout<<"Releasing Resource of our Queue Data Struture"<<endl;
-cout<<"Current DMA On heap is: "<<DMACount<<endl;
-delete this->dataRows;
-}
+// do nothing because all the resource are free by SqliteDB class destructor.
 }
 int Rows::hasMoreRows() throw (SQLiteException)
 {
@@ -211,6 +157,7 @@ if(this->dataRows!=NULL)
 I Assumed main() function programmer cannot use Rows class to grab the
 Queue of Rows data structure So I release Memory.
 */
+cout<<
 forward_list<string *> *row;
 string *str1;
 string *str2;
@@ -236,8 +183,10 @@ DMACount--;
 cout<<"Current DMA On heap is: "<<DMACount<<endl;
 }
 DMACount--;
+cout<<"2-----------------------------------"<<endl;
 cout<<"Releasing Resource of our Queue Data Struture"<<endl;
 cout<<"Current DMA On heap is: "<<DMACount<<endl;
+cout<<"I am assigning NULL"<<endl;
 delete this->dataRows;
 this->dataRows=NULL;
 }
@@ -314,7 +263,11 @@ if(this->db!=NULL)
 sqlite3_close(this->db);
 this->db=NULL;
 this->FILE_NAME="";
-if(this->dataRows!=NULL) this->clearDataRows();
+if(this->dataRows!=NULL)
+{
+cout<<"calling SqliteDB destructor"<<endl;
+this->clearDataRows();
+}
 this->dataRows=NULL;
 }
 }
